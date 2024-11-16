@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Viewer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #555;
+        }
+
+        .input-container {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        iframe {
+            margin-top: 20px;
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-remove-buttons {
+            display: flex;
+            margin-left: 10px;
+        }
+
+        .add-remove-buttons button {
+            margin-left: 5px;
+        }
+
+        .remaining {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            input[type="text"] {
+                width: 90%;
+            }
+
+            iframe {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Viewer</h1>
+    <p>URLを入力して「開く」を押してね！</p>
+
+    <div id="inputWrapper">
+        <!-- URL入力欄が動的に追加される部分 -->
+        <div class="input-container">
+            <input type="text" class="url-input" placeholder="https://example.com" />
+            <button class="show-btn" onclick="showSite(this)">開く</button>
+            <div class="add-remove-buttons">
+                <button class="plus-btn" onclick="addInput()">+</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="remaining">
+        残り入力欄数: <span id="remainingCount">4</span> / 5
+    </div>
+
+    <iframe id="resultFrame"></iframe>
+
+    <script>
+        let inputCount = 1;  // 現在のURL入力欄の数
+
+        // URLが有効かどうかを確認する関数
+        function isValidURL(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // URLを表示する処理
+        function showSite(button) {
+            const inputField = button.previousElementSibling;
+            const resultFrame = document.getElementById('resultFrame');
+
+            const url = inputField.value.trim();
+
+            if (isValidURL(url)) {
+                resultFrame.src = url; // 有効なURLならiframeに表示
+            } else {
+                alert("有効なURLを入力してください！");
+            }
+        }
+
+        // 新しい入力欄を追加する処理
+        function addInput() {
+            if (inputCount < 5) {
+                inputCount++;
+                const inputWrapper = document.getElementById('inputWrapper');
+
+                const newInputContainer = document.createElement('div');
+                newInputContainer.classList.add('input-container');
+
+                newInputContainer.innerHTML = `
+                    <input type="text" class="url-input" placeholder="https://example.com" />
+                    <button class="show-btn" onclick="showSite(this)">開く</button>
+                    <div class="add-remove-buttons">
+                        <button class="minus-btn" onclick="removeInput(this)">-</button>
+                    </div>
+                `;
+
+                inputWrapper.appendChild(newInputContainer);
+                updateRemainingCount();
+            }
+        }
+
+        // 入力欄を削除する処理
+        function removeInput(button) {
+            if (inputCount > 1) {
+                button.closest('.input-container').remove();
+                inputCount--;
+                updateRemainingCount();
+            }
+        }
+
+        // 残り入力欄数を更新する関数
+        function updateRemainingCount() {
+            document.getElementById('remainingCount').textContent = 5 - inputCount;
+        }
+    </script>
+</body>
+</html>
